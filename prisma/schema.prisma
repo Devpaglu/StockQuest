@@ -11,7 +11,7 @@ model User {
   id          String     @id @default(cuid())
   email       String     @unique
   name        String?
-  clerkId     String?
+  clerkId     String     @unique   
   trades      Trade[]
   portfolio   Portfolio?
   portfolioId String?    @unique

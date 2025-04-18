@@ -1,8 +1,15 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from "next/navigation"
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { userId } = await auth()
+  if (userId) {
+    redirect('/dashboard')
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 border-b">
@@ -16,7 +23,7 @@ export default function LandingPage() {
               Login
             </Button>
           </Link>
-          <Link href="/signup">
+          <Link href="/dashboard">
             <Button className="rounded-full bg-green-500 hover:bg-green-600">Get Started</Button>
           </Link>
         </div>
@@ -37,7 +44,7 @@ export default function LandingPage() {
                 risk-free environment.
               </p>
               <div className="space-x-4">
-                <Link href="/signup">
+                <Link href="/dashboard">
                   <Button className="h-12 px-8 bg-green-500 hover:bg-green-600 rounded-full">
                     Start Your Journey <span className="ml-2">→</span>
                   </Button>

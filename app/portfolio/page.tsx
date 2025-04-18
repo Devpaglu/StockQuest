@@ -13,7 +13,16 @@ export default async function PortfolioPage() {
 
   if (!userId) return redirectToSignIn()
 
-  
+  const user = prisma.user.findFirst({
+    where:{
+      clerkId:userId
+    },
+    include:{
+      portfolio:true
+    }
+  })
+
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />
@@ -63,7 +72,7 @@ export default async function PortfolioPage() {
 
             <div className="mt-6">
               <div className="text-gray-500 text-sm">Total Value</div>
-              <div className="text-4xl font-bold mt-1">$15732.40</div>
+              {/* <div className="text-4xl font-bold mt-1">₹{user.portfolio.value}</div> */}
               <div className="flex items-center text-green-500 text-sm font-medium mt-1">
                 <ArrowUp className="h-4 w-4 mr-1" />
                 $234.56 (+1.51%) today

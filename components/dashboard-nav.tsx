@@ -9,6 +9,8 @@ import { Home, Clock, BookOpen, Search, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 
+
+
 export function DashboardNav() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
@@ -60,7 +62,7 @@ export function DashboardNav() {
               <span>Learn</span>
             </Link>
 
-            <SignedIn>
+            <SignedIn >
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
             <SignedOut>

@@ -24,12 +24,7 @@ async function main() {
           },
         },
       });
-
-    const users = prisma.user.findMany()
-      
-      console.log(users);
-      
-    }
+}
 
 main()
   .then(async () => {

@@ -4,8 +4,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { StockCard } from "@/components/stock-card"
 import { ArrowUpRight } from "lucide-react"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 
-export default function DashboardPage() {
+export default async function  DashboardPage() {
+  const { userId } = await auth()
+
+    if (!userId) {
+      redirect('/login')
+    }
+
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />
@@ -13,7 +22,7 @@ export default function DashboardPage() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="flex flex-col gap-2 mb-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Welcome back, Alex Morgan!</h1>
+            <h1 className="text-3xl font-bold">Welcome back,!</h1>
             <div className="flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-1 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

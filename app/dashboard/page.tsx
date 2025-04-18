@@ -4,8 +4,26 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { StockCard } from "@/components/stock-card"
 import { ArrowUpRight } from "lucide-react"
+import { PrismaClient } from '@prisma/client'
 
-export default function DashboardPage() {
+const prisma = new PrismaClient()
+export default async function DashboardPage() {
+  const user = await prisma.user.findFirst({
+    where:{
+      email:"alice2@prisma.io"
+    },
+    include:{
+      portfolio:true,
+      trades:true
+    }
+  })
+
+  const stocks = await prisma.stock.findMany({
+    include:{
+      priceHistory:true
+    }
+  })
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />
@@ -33,7 +51,7 @@ export default function DashboardPage() {
                 <path d="M8 7h8" />
                 <circle cx="12" cy="19" r="3" />
               </svg>
-              <span className="font-semibold">1450 XP</span>
+              <span className="font-semibold">{user?.XP}</span>
               <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold">
                 6
               </div>
@@ -63,8 +81,8 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">$15732.40</div>
-                <div className="text-sm text-green-500 font-medium">+$234.56 (+1.51%) today</div>
+                <div className="text-3xl font-bold">₹{user?.portfolio?.value}</div>
+                <div className="text-sm text-green-500 font-medium">₹{user?.portfolio?.change} ({(user?.portfolio?.change??1)/(user?.portfolio?.value??1)}%) today</div>
               </div>
             </CardContent>
           </Card>
@@ -137,70 +155,32 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StockCard
-            symbol="AAPL"
-            name="Apple Inc."
-            price={187.68}
-            change={1.25}
-            changePercent={0.67}
-            trending={true}
-          />
-          <StockCard
-            symbol="MSFT"
-            name="Microsoft Corporation"
-            price={408.47}
-            change={3.22}
-            changePercent={0.79}
-            trending={true}
-          />
-          <StockCard
-            symbol="GOOGL"
-            name="Alphabet Inc."
-            price={174.23}
-            change={-0.89}
-            changePercent={-0.51}
-            trending={true}
-          />
-          <StockCard
-            symbol="AMZN"
-            name="Amazon.com Inc."
-            price={186.93}
-            change={2.34}
-            changePercent={1.27}
-            trending={true}
-          />
-          <StockCard
-            symbol="TSLA"
-            name="Tesla, Inc."
-            price={175.34}
-            change={-5.28}
-            changePercent={-2.92}
-            trending={true}
-          />
-          <StockCard
-            symbol="NFLX"
-            name="Netflix, Inc."
-            price={638.78}
-            change={12.45}
-            changePercent={1.99}
-            trending={true}
-          />
-          <StockCard
-            symbol="META"
-            name="Meta Platforms, Inc."
-            price={503.22}
-            change={8.34}
-            changePercent={1.69}
-            trending={true}
-          />
-          <StockCard
-            symbol="NVDA"
-            name="NVIDIA Corporation"
-            price={950.25}
-            change={25.13}
-            changePercent={2.72}
-            trending={true}
-          />
+        {stocks.map((stock) => {
+            const priceHistory = stock.priceHistory;
+            const latestPrice = priceHistory.length > 0 ? priceHistory.at(-1)?.price : null;
+            const prevPrice = priceHistory.length > 1 ? priceHistory.at(-2)?.price : null;
+
+            const change = (latestPrice != null && prevPrice != null)
+              ? parseFloat((latestPrice - prevPrice).toFixed(2))
+              : 0;
+
+            const changePercent = (latestPrice != null && prevPrice != null && prevPrice !== 0)
+              ? parseFloat(((latestPrice - prevPrice) / prevPrice * 100).toFixed(2))
+              : 0;
+
+            return (
+              <StockCard
+                key={stock.symbol}
+                symbol={stock.symbol}
+                name={stock.name}
+                price={latestPrice ?? 0}
+                change={change}
+                changePercent={changePercent}
+                trending={true}
+              />
+            );
+          })}
+
         </div>
       </main>
     </div>

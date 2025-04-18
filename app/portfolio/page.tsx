@@ -1,17 +1,19 @@
-"use client"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowUp } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { useEffect } from "react"
-export default function PortfolioPage() {
-  const { user, isSignedIn, isLoaded } = useUser();
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      console.log("User ID:", user.id);
-    }
-  }, [isLoaded, isSignedIn, user]);
+import { auth } from '@clerk/nextjs/server'
+import { PrismaClient } from "@prisma/client"
+
+const prisma = new PrismaClient()
+export default async function PortfolioPage() {
+  const { userId, redirectToSignIn } = await auth()
+
+  if (!userId) return redirectToSignIn()
+
+  
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Logo } from "@/components/logo"
 import { ChevronLeft } from "lucide-react"
+import { SignInButton } from "@clerk/nextjs"
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState("login")
@@ -85,6 +86,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <Button className="w-full bg-green-500 hover:bg-green-600">Login</Button>
+              <SignInButton/>
             </TabsContent>
             <TabsContent value="signup" className="space-y-4 mt-4">
               <div className="space-y-2">

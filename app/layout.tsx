@@ -11,6 +11,9 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { ThemeProvider } from "@/components/theme-provider"
+import Chatbot from "@/components/Chatbot"
+
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -32,6 +35,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
+          <Chatbot/>
         </ThemeProvider>
       </body>
     </html>

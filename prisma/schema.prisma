@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or mysql / sqlite
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  name        String?
+  clerkId     String?
+  trades      Trade[]
+  portfolio   Portfolio?
+  portfolioId String?    @unique
+  createdAt   DateTime   @default(now())
+  balance     Float      @default(100000)
+  XP          Int?
+}
+
+model Stock {
+  symbol            String             @id
+  name              String
+  sector            String?
+  priceHistory      Price[]
+  news              News[]
+  createdAt         DateTime           @default(now())
+  trades            Trade[]
+  stockInPortfolio  StockInPortfolio[]
+}
+
+model Price {
+  id          String   @id @default(cuid())
+  stock       Stock    @relation(fields: [stockSymbol], references: [symbol])
+  stockSymbol String
+  price       Float
+  timestamp   DateTime
+}
+
+model Trade {
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  stock        Stock    @relation(fields: [stockSymbol], references: [symbol])
+  stockSymbol  String
+  type         TradeType
+  quantity     Int
+  priceAtTrade Float
+  createdAt    DateTime @default(now())
+}
+
+model Portfolio {
+  id               String             @id @default(cuid())
+  user             User               @relation(fields: [userId], references: [id])
+  userId           String             @unique
+  stockPortfolio   StockInPortfolio[]
+  updatedAt        DateTime           @updatedAt
+  value            Float              @default(0)
+  change           Float              @default(0)
+}
+
+model StockInPortfolio {
+  id           String     @id @default(cuid())
+  portfolio    Portfolio  @relation(fields: [portfolioId], references: [id])
+  portfolioId  String
+  stock        Stock      @relation(fields: [stockSymbol], references: [symbol])
+  stockSymbol  String
+  quantity     Int
+  averagePrice Float
+}
+
+model News {
+  id           String   @id @default(cuid())
+  stock        Stock    @relation(fields: [stockSymbol], references: [symbol])
+  stockSymbol  String
+  title        String
+  url          String
+  publishedAt  DateTime
+}
+
+enum TradeType {
+  BUY
+  SELL
+}

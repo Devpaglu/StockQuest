@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Home, Clock, BookOpen, User, Search, Sun, Moon } from "lucide-react"
+import { Home, Clock, BookOpen, Search, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 
 export function DashboardNav() {
   const pathname = usePathname()
@@ -58,15 +59,20 @@ export function DashboardNav() {
               <BookOpen className="h-5 w-5" />
               <span>Learn</span>
             </Link>
-            <Link
-              href="/profile"
-              className={`flex flex-col items-center gap-1 text-sm ${
-                pathname === "/profile" ? "text-green-500" : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              <User className="h-5 w-5" />
-              <span>Profile</span>
-            </Link>
+
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+            <SignedOut>
+              <div className="flex items-center gap-2">
+                <SignInButton>
+                  <Button variant="outline">Sign In</Button>
+                </SignInButton>
+                <SignUpButton>
+                  <Button variant="default">Sign Up</Button>
+                </SignUpButton>
+              </div>
+            </SignedOut>
           </nav>
 
           <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>

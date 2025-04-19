@@ -11,10 +11,52 @@ import Link from 'next/link'; // Import Link for news items
 import Overview from "@/components/Overview";
 import PlaceOrder from "@/components/PlaceOrder";
 import NewsSection from "@/components/NewsSection";
+import { FetchFinance, FetchNews } from "./actions/fetchdata";
 
 
 const prisma = new PrismaClient(); // Keeping it simple here for the example
 
+
+interface FinancialData {
+  symbol: string;
+  open: number;
+  high: number;
+  low: number;
+  price: number;
+  volume: number;
+  latestTradingDay: string;
+  previousClose: number;
+  change: number;
+  changePercent: string;
+}
+
+function mapApiResponse(rawData: any): FinancialData {
+  return {
+    symbol: rawData['01. symbol'],
+    open: parseFloat(rawData['02. open']),
+    high: parseFloat(rawData['03. high']),
+    low: parseFloat(rawData['04. low']),
+    price: parseFloat(rawData['05. price']),
+    volume: parseInt(rawData['06. volume']),
+    latestTradingDay: rawData['07. latest trading day'],
+    previousClose: parseFloat(rawData['08. previous close']),
+    change: parseFloat(rawData['09. change']),
+    changePercent: rawData['10. change percent']
+  };
+}
+
+
+
+type NewsItem = {
+  source: { name: string; id?: string | null };
+  author: string;
+  title: string;
+  description: string;
+  url: string;
+  urlToImage: string;
+  publishedAt: string;
+  content: string;
+};
 
 export default async function StockPage({
   params,
@@ -197,6 +239,18 @@ export default async function StockPage({
     }
   })
 
+  const {symbol} =  await params;
+  const data = await FetchNews(symbol)
+  console.log("neww s   s s ")
+  //console.log(data)
+  const news: NewsItem[] = data.articles;
+
+
+   const fd  = await FetchFinance(symbol);
+  // console.log(financialData)
+
+  const financialData = mapApiResponse(fd);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
       <DashboardNav />
@@ -234,12 +288,49 @@ export default async function StockPage({
                 <Card className="shadow-sm dark:bg-gray-900">
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Financial Information</h3>
-                    <p className="text-gray-500 dark:text-gray-400">Financial data is not yet available.</p>
+                    <ul className="space-y-1 text-sm">
+                      <li><strong>Symbol:</strong> {financialData.symbol}</li>
+                      <li><strong>Open:</strong> ${financialData.open}</li>
+                      <li><strong>High:</strong> ${financialData.high}</li>
+                      <li><strong>Low:</strong> ${financialData.low}</li>
+                      <li><strong>Current Price:</strong> ${financialData.price}</li>
+                      <li><strong>Volume:</strong> {financialData.volume}</li>
+                      <li><strong>Latest Trading Day:</strong> {financialData.latestTradingDay}</li>
+                      <li><strong>Previous Close:</strong> ${financialData.previousClose}</li>
+                      <li><strong>Change:</strong> ${financialData.change} ({financialData.changePercent})</li>
+                    </ul>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <NewsSection/>
+              <TabsContent value="news" className="mt-4">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">Latest News</h3>
+                {news.length > 0 ? (
+                  <ul className="space-y-4"> {/* Use space-y for better separation */}
+                    {news.map((item, index) => (
+                      <li key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
+                        <a
+                          href={item.url}
+                          target="_blank" // Open in new tab
+                          rel="noopener noreferrer" // Security best practice
+                          className="text-blue-600 hover:underline dark:text-blue-400 font-medium"
+                        >
+                          {item.title}
+                        </a>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>Source: {item.source.name}</span> | <span>{new Date(item.publishedAt).toLocaleDateString()}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 dark:text-gray-400">No news available for {symbol?.toUpperCase()}.</p>
+                )}
+              </CardContent>
+            </Card>
+            </TabsContent>
 
               
             </Tabs>

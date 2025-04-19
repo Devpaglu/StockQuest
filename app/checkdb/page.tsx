@@ -19,6 +19,12 @@ const checkdb = async () => {
         clerkId: user.id,
         name: user.firstName || "No Name",
         email: user.emailAddresses[0]?.emailAddress || "No Email",
+        portfolio:{
+            create:{
+                value:0,
+                change:0
+            }
+        }
       },
     });
   }

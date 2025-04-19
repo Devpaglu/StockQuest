@@ -1,298 +1,253 @@
-import { DashboardNav } from "@/components/dashboard-nav"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { StockChart } from "@/components/stock-chart"
-import { BookOpen } from "lucide-react"
+// app/stocks/[symbol]/page.tsx
 
-interface StockPageProps {
-  params: {
-    symbol: string
+import { DashboardNav } from "@/components/dashboard-nav";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StockChart, {  } from "@/components/stock-chart";
+import { PrismaClient} from "@prisma/client"; // Import News type if needed
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import Link from 'next/link'; // Import Link for news items
+import Overview from "@/components/Overview";
+import PlaceOrder from "@/components/PlaceOrder";
+import NewsSection from "@/components/NewsSection";
+
+
+const prisma = new PrismaClient(); // Keeping it simple here for the example
+
+
+export default async function StockPage({
+  params,
+  }: {
+    params: { symbol: string };
+  }) {
+
+  const { userId } = await auth();
+  if (!userId) {
+    redirect("/sign-in");
   }
-}
 
-export default function StockPage({ params }: StockPageProps) {
-  const { symbol } = params
+  const user = await prisma.user.findUnique({
+    where: { clerkId: userId },
+  });
+  if (!user) {
+     console.warn("Authenticated user with Clerk ID not found in local DB:", userId);
+  }
 
-  // Mock data for the example
-  const stockData = {
-    AAPL: {
-      name: "Apple Inc.",
-      price: 187.68,
-      change: 1.25,
-      changePercent: 0.67,
-      marketCap: "2950.00B",
-      volume: "52.35M",
-      peRatio: "30.50",
-      dividendYield: "0.60%",
-      sector: "Technology",
-      description:
-        "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.",
+  const stock = await prisma.stock.findUnique({
+    where: {
+      symbol: (await params).symbol.toUpperCase(), // Normalize symbol just in case
     },
+  }) ;
+
+  if (!stock) {
+    notFound(); 
   }
 
-  const stock = stockData[symbol as keyof typeof stockData] || {
-    name: "Unknown Stock",
-    price: 0,
-    change: 0,
-    changePercent: 0,
-    marketCap: "N/A",
-    volume: "N/A",
-    peRatio: "N/A",
-    dividendYield: "N/A",
-    sector: "N/A",
-    description: "No information available for this stock.",
-  }
+  const res = await fetch(`http://localhost:3000/api/stock/${stock.symbol}/price`)
+  const currentPrice = (await res.json())?.Price
 
-  const isPositive = stock.change >= 0
+  const priceHistory = [
+    { "date": "2024-10-01", "price": 345.67 },
+    { "date": "2024-10-02", "price": 348.92 },
+    { "date": "2024-10-03", "price": 351.45 },
+    { "date": "2024-10-04", "price": 349.78 },
+    { "date": "2024-10-07", "price": 352.31 },
+    { "date": "2024-10-08", "price": 356.89 },
+    { "date": "2024-10-09", "price": 359.12 },
+    { "date": "2024-10-10", "price": 357.45 },
+    { "date": "2024-10-11", "price": 360.23 },
+    { "date": "2024-10-14", "price": 362.78 },
+    { "date": "2024-10-15", "price": 365.91 },
+    { "date": "2024-10-16", "price": 364.56 },
+    { "date": "2024-10-17", "price": 367.82 },
+    { "date": "2024-10-18", "price": 369.45 },
+    { "date": "2024-10-21", "price": 366.78 },
+    { "date": "2024-10-22", "price": 368.92 },
+    { "date": "2024-10-23", "price": 371.34 },
+    { "date": "2024-10-24", "price": 373.67 },
+    { "date": "2024-10-25", "price": 370.89 },
+    { "date": "2024-10-28", "price": 372.45 },
+    { "date": "2024-10-29", "price": 375.23 },
+    { "date": "2024-10-30", "price": 373.78 },
+    { "date": "2024-10-31", "price": 371.56 },
+    { "date": "2024-11-01", "price": 374.23 },
+    { "date": "2024-11-04", "price": 377.89 },
+    { "date": "2024-11-05", "price": 380.12 },
+    { "date": "2024-11-06", "price": 382.45 },
+    { "date": "2024-11-07", "price": 385.67 },
+    { "date": "2024-11-08", "price": 387.23 },
+    { "date": "2024-11-11", "price": 389.56 },
+    { "date": "2024-11-12", "price": 386.78 },
+    { "date": "2024-11-13", "price": 384.23 },
+    { "date": "2024-11-14", "price": 387.45 },
+    { "date": "2024-11-15", "price": 390.12 },
+    { "date": "2024-11-18", "price": 392.67 },
+    { "date": "2024-11-19", "price": 395.23 },
+    { "date": "2024-11-20", "price": 393.45 },
+    { "date": "2024-11-21", "price": 396.78 },
+    { "date": "2024-11-22", "price": 398.34 },
+    { "date": "2024-11-25", "price": 401.23 },
+    { "date": "2024-11-26", "price": 403.67 },
+    { "date": "2024-11-27", "price": 405.89 },
+    { "date": "2024-11-29", "price": 404.56 },
+    { "date": "2024-12-02", "price": 407.23 },
+    { "date": "2024-12-03", "price": 405.67 },
+    { "date": "2024-12-04", "price": 402.34 },
+    { "date": "2024-12-05", "price": 398.78 },
+    { "date": "2024-12-06", "price": 401.45 },
+    { "date": "2024-12-09", "price": 404.23 },
+    { "date": "2024-12-10", "price": 407.89 },
+    { "date": "2024-12-11", "price": 410.56 },
+    { "date": "2024-12-12", "price": 413.23 },
+    { "date": "2024-12-13", "price": 415.67 },
+    { "date": "2024-12-16", "price": 418.34 },
+    { "date": "2024-12-17", "price": 420.89 },
+    { "date": "2024-12-18", "price": 423.45 },
+    { "date": "2024-12-19", "price": 425.78 },
+    { "date": "2024-12-20", "price": 428.23 },
+    { "date": "2024-12-23", "price": 430.56 },
+    { "date": "2024-12-24", "price": 432.12 },
+    { "date": "2024-12-26", "price": 435.67 },
+    { "date": "2024-12-27", "price": 438.23 },
+    { "date": "2024-12-30", "price": 440.89 },
+    { "date": "2024-12-31", "price": 442.45 },
+    { "date": "2025-01-02", "price": 445.78 },
+    { "date": "2025-01-03", "price": 448.34 },
+    { "date": "2025-01-06", "price": 450.67 },
+    { "date": "2025-01-07", "price": 447.23 },
+    { "date": "2025-01-08", "price": 443.89 },
+    { "date": "2025-01-09", "price": 446.45 },
+    { "date": "2025-01-10", "price": 449.78 },
+    { "date": "2025-01-13", "price": 452.34 },
+    { "date": "2025-01-14", "price": 455.67 },
+    { "date": "2025-01-15", "price": 458.23 },
+    { "date": "2025-01-16", "price": 460.89 },
+    { "date": "2025-01-17", "price": 463.45 },
+    { "date": "2025-01-21", "price": 465.78 },
+    { "date": "2025-01-22", "price": 462.34 },
+    { "date": "2025-01-23", "price": 459.67 },
+    { "date": "2025-01-24", "price": 462.23 },
+    { "date": "2025-01-27", "price": 465.89 },
+    { "date": "2025-01-28", "price": 468.45 },
+    { "date": "2025-01-29", "price": 470.12 },
+    { "date": "2025-01-30", "price": 467.56 },
+    { "date": "2025-01-31", "price": 464.23 },
+    { "date": "2025-02-03", "price": 467.89 },
+    { "date": "2025-02-04", "price": 470.45 },
+    { "date": "2025-02-05", "price": 473.12 },
+    { "date": "2025-02-06", "price": 475.67 },
+    { "date": "2025-02-07", "price": 478.23 },
+    { "date": "2025-02-10", "price": 480.89 },
+    { "date": "2025-02-11", "price": 483.45 },
+    { "date": "2025-02-12", "price": 485.12 },
+    { "date": "2025-02-13", "price": 482.67 },
+    { "date": "2025-02-14", "price": 485.23 },
+    { "date": "2025-02-18", "price": 487.89 },
+    { "date": "2025-02-19", "price": 490.45 },
+    { "date": "2025-02-20", "price": 487.12 },
+    { "date": "2025-02-21", "price": 484.67 },
+    { "date": "2025-02-24", "price": 481.23 },
+    { "date": "2025-02-25", "price": 478.89 },
+    { "date": "2025-02-26", "price": 481.45 },
+    { "date": "2025-02-27", "price": 484.12 },
+    { "date": "2025-02-28", "price": 486.67 },
+    { "date": "2025-03-03", "price": 489.23 },
+    { "date": "2025-03-04", "price": 491.89 },
+    { "date": "2025-03-05", "price": 494.45 },
+    { "date": "2025-03-06", "price": 496.12 },
+    { "date": "2025-03-07", "price": 493.67 },
+    { "date": "2025-03-10", "price": 490.23 },
+    { "date": "2025-03-11", "price": 492.89 },
+    { "date": "2025-03-12", "price": 495.45 },
+    { "date": "2025-03-13", "price": 498.12 },
+    { "date": "2025-03-14", "price": 500.67 },
+    { "date": "2025-03-17", "price": 497.23 },
+    { "date": "2025-03-18", "price": 494.89 },
+    { "date": "2025-03-19", "price": 497.45 },
+    { "date": "2025-03-20", "price": 500.12 },
+    { "date": "2025-03-21", "price": 502.67 },
+    { "date": "2025-03-24", "price": 505.23 },
+    { "date": "2025-03-25", "price": 507.89 },
+    { "date": "2025-03-26", "price": 510.45 },
+    { "date": "2025-03-27", "price": 512.12 },
+    { "date": "2025-03-28", "price": 514.67 },
+    { "date": "2025-03-31", "price": 517.23 },
+    { "date": "2025-04-01", "price": 519.89 },
+    { "date": "2025-04-02", "price": 522.45 },
+    { "date": "2025-04-03", "price": 525.12 },
+    { "date": "2025-04-04", "price": 527.67 },
+    { "date": "2025-04-07", "price": 530.23 },
+    { "date": "2025-04-08", "price": 532.89 },
+    { "date": "2025-04-09", "price": 535.45 },
+    { "date": "2025-04-10", "price": 538.12 },
+    { "date": "2025-04-11", "price": 540.67 },
+    { "date": "2025-04-14", "price": 543.23 },
+    { "date": "2025-04-15", "price": 545.89 },
+    { "date": "2025-04-16", "price": 548.45 },
+    { "date": "2025-04-17", "price": 551.12 },
+    { "date": "2025-04-18", "price": 553.67 }
+  ]
+
+  const priceres = await fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-timeseries?symbol=IBM&region=US",{
+    method:'GET',
+    headers: {
+      'x-rapidapi-key': '0a36914798msh6767ac7df822dc7p1554b2jsnb99b721f5263',
+      'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
+    }
+  })
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
       <DashboardNav />
 
       <main className="flex-1 container mx-auto px-4 py-8">
+        {/* --- Header --- */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="text-3xl font-bold">{symbol}</div>
-            <div
-              className={`text-sm font-medium px-3 py-1 rounded-full ${isPositive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-            >
-              {isPositive ? "+" : ""}
-              {stock.changePercent.toFixed(2)}%
-            </div>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stock.symbol}</h1>
           </div>
-          <div className="text-xl text-gray-700 dark:text-gray-300">{stock.name}</div>
-          <div className="flex items-baseline gap-2 mt-2">
-            <div className="text-4xl font-bold">${stock.price.toFixed(2)}</div>
-            <div className={`text-lg font-medium ${isPositive ? "text-green-500" : "text-red-500"}`}>
-              {isPositive ? "+" : ""}
-              {stock.change.toFixed(2)}
-            </div>
-          </div>
+          <h2 className="text-xl text-gray-700 dark:text-gray-300">{stock.name}</h2>
         </div>
 
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold mb-4">Price Chart</h2>
-              <StockChart />
-            </div>
+        <StockChart symbol={stock.symbol} priceHistory={priceHistory}/>
 
-            <div className="flex flex-wrap gap-2 mt-4">
-              <Button variant="outline" className="rounded-full">
-                1D
-              </Button>
-              <Button variant="outline" className="rounded-full">
-                1W
-              </Button>
-              <Button variant="outline" className="rounded-full">
-                1M
-              </Button>
-              <Button variant="outline" className="rounded-full">
-                3M
-              </Button>
-              <Button variant="secondary" className="rounded-full bg-green-500 text-white hover:bg-green-600">
-                1Y
-              </Button>
-              <Button variant="outline" className="rounded-full">
-                5Y
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+    
 
+        {/* --- Tabs --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
+             {/* If Tabs implementation uses client hooks, wrap this section */}
+             {/* <ClientTabsWrapper stock={stock} formatNumber={formatNumber} newsItems={newsItems} /> */}
             <Tabs defaultValue="overview">
-              <TabsList className="w-full">
-                <TabsTrigger value="overview" className="flex-1">
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="financials" className="flex-1">
-                  Financials
-                </TabsTrigger>
-                <TabsTrigger value="news" className="flex-1">
-                  News
-                </TabsTrigger>
+              <TabsList className="w-full grid grid-cols-3 mb-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="financials">Financials</TabsTrigger>
+                <TabsTrigger value="news">News</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="mt-4">
-                <Card>
+           
+              <Overview stock={stock}/>
+
+              {/* Financials Tab */}
+              <TabsContent value="financials">
+                <Card className="shadow-sm dark:bg-gray-900">
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold mb-2">Company Overview</h3>
-                    <p className="text-gray-500 mb-4">Key information about {stock.name}</p>
-
-                    <p className="mb-6">{stock.description}</p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                      <div>
-                        <h4 className="text-lg font-bold mb-4">Key Statistics</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Market Cap</span>
-                            <span className="font-medium">${stock.marketCap}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Volume</span>
-                            <span className="font-medium">{stock.volume}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">P/E Ratio</span>
-                            <span className="font-medium">{stock.peRatio}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Dividend Yield</span>
-                            <span className="font-medium">{stock.dividendYield}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Sector</span>
-                            <span className="font-medium">{stock.sector}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="text-lg font-bold mb-4">Performance</h4>
-                        <div className="space-y-4">
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">Today</span>
-                              <span className="text-green-500">+0.67%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div className="bg-green-500 h-1.5 rounded-full" style={{ width: "20%" }}></div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">1 Month</span>
-                              <span className="text-green-500">+8.2%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div className="bg-green-500 h-1.5 rounded-full" style={{ width: "40%" }}></div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">1 Year</span>
-                              <span className="text-green-500">+32.7%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div className="bg-green-500 h-1.5 rounded-full" style={{ width: "65%" }}></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Financial Information</h3>
+                    <p className="text-gray-500 dark:text-gray-400">Financial data is not yet available.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="financials" className="mt-4">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-bold mb-4">Financial Information</h3>
-                    <p className="text-gray-500">Coming soon...</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              <NewsSection/>
 
-              <TabsContent value="news" className="mt-4">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-bold mb-4">Latest News</h3>
-                    <p className="text-gray-500">Coming soon...</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              
             </Tabs>
           </div>
 
-          <div>
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-4">Trade {symbol}</h3>
-                <p className="text-gray-500 mb-6">Buy or sell shares of {stock.name}</p>
-
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm font-medium mb-1">Current Price</div>
-                    <div className="text-xl font-bold">${stock.price.toFixed(2)}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium mb-1">Available Cash</div>
-                    <div className="text-xl font-bold">$10,000.00</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium mb-1">Quantity</div>
-                    <Input type="number" min="1" defaultValue="1" />
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium mb-1">Estimated Cost</div>
-                    <div className="text-xl font-bold">${stock.price.toFixed(2)}</div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button className="bg-green-500 hover:bg-green-600">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4 mr-2"
-                      >
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                      </svg>
-                      Buy
-                    </Button>
-                    <Button className="bg-red-500 hover:bg-red-600">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4 mr-2"
-                      >
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                      </svg>
-                      Sell
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="mt-8 p-4 bg-purple-100 rounded-lg flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-purple-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-purple-800">Learn while you trade</h4>
-                    <p className="text-sm text-purple-700 mb-2">
-                      Complete a lesson about Technology stocks and earn 50 XP + $500 bonus cash!
-                    </p>
-                    <Button size="sm" className="bg-purple-500 hover:bg-purple-600">
-                      Start Lesson
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <PlaceOrder stock={stock} currentPrice={currentPrice} balance={user?.balance}/>
         </div>
       </main>
     </div>
-  )
+  );
 }

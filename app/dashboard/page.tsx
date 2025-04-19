@@ -10,30 +10,36 @@ import { redirect } from "next/navigation"
 
 const prisma = new PrismaClient()
 
-
 export default async function DashboardPage() {
   const { userId } = await auth()
 
   if (!userId) {
     redirect('/login')
   }
-  
+
   const user = await prisma.user?.findFirst({
-    where:{
-      clerkId:userId
+    where: {
+      clerkId: userId
     },
-    include:{
-      portfolio:true,
-      trades:true
+    include: {
+      portfolio: true,
+      trades: true
     }
   })
 
-  const stocks = await prisma.stock?.findMany({
-    include:{
-      priceHistory:true
-    }
-  })
+  const stocks = await prisma.stock?.findMany()
 
+  // ✅ Fetch prices for all stocks before rendering
+  const stocksWithPrices = await Promise.all(
+    stocks.map(async (stock) => {
+      const res = await fetch(`http://localhost:3000/api/stock/${stock.symbol}/price`)
+      const latestPrice = (await res.json())?.Price
+      return {
+        ...stock,
+        latestPrice: latestPrice ?? 0
+      }
+    })
+  )
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -44,18 +50,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Welcome back,!</h1>
             <div className="flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-1 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
-              >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
                 <path d="M11 12 5.12 2.2" />
                 <path d="m13 12 5.88-9.8" />
@@ -72,48 +67,30 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Portfolio Card */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium">Portfolio Value</h2>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-green-500"
-                >
+                <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
               <div className="space-y-1">
                 <div className="text-3xl font-bold">₹{user?.portfolio?.value}</div>
-                <div className="text-sm text-green-500 font-medium">₹{user?.portfolio?.change} ({(user?.portfolio?.change??1)/(user?.portfolio?.value??1)}%) today</div>
+                <div className="text-sm text-green-500 font-medium">
+                  ₹{user?.portfolio?.change} ({((user?.portfolio?.change ?? 1) / (user?.portfolio?.value ?? 1)) * 100}%) today
+                </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Learning Progress */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium">Learning Progress</h2>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-purple-500"
-                >
+                <svg className="h-5 w-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                   <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                 </svg>
@@ -127,22 +104,12 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Daily Challenge */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium">Daily Challenge</h2>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-blue-500"
-                >
+                <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M12 22V8" />
                   <path d="m5 12 7-4 7 4" />
                   <path d="M5 3h14" />
@@ -157,6 +124,7 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
+        {/* Trending Stocks */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Trending Stocks</h2>
           <Link href="/search" className="text-green-500 hover:text-green-600 flex items-center">
@@ -166,32 +134,15 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stocks.map((stock) => {
-            const priceHistory = stock.priceHistory;
-            const latestPrice = priceHistory.length > 0 ? priceHistory.at(-1)?.price : null;
-            const prevPrice = priceHistory.length > 1 ? priceHistory.at(-2)?.price : null;
-
-            const change = (latestPrice != null && prevPrice != null)
-              ? parseFloat((latestPrice - prevPrice).toFixed(2))
-              : 0;
-
-            const changePercent = (latestPrice != null && prevPrice != null && prevPrice !== 0)
-              ? parseFloat(((latestPrice - prevPrice) / prevPrice * 100).toFixed(2))
-              : 0;
-
-            return (
-              <StockCard
-                key={stock.symbol}
-                symbol={stock.symbol}
-                name={stock.name}
-                price={latestPrice ?? 0}
-                change={change}
-                changePercent={changePercent}
-                trending={true}
-              />
-            );
-          })}
-
+          {stocksWithPrices.map((stock) => (
+            <StockCard
+              key={stock.symbol}
+              symbol={stock.symbol}
+              name={stock.name}
+              price={stock.latestPrice}
+              trending={true}
+            />
+          ))}
         </div>
       </main>
     </div>

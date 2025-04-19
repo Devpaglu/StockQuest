@@ -1,85 +1,111 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts"
 
-// Mock data for the chart
-const generateChartData = () => {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  const data = []
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
-  let price = 250
-
-  for (let i = 0; i < months.length; i++) {
-    // Simulate some price movement
-    const change = Math.random() * 40 - 15
-    price = Math.max(100, price + change)
-
-    data.push({
-      name: months[i],
-      price: Math.round(price),
-    })
-  }
-
-  return data
+interface PriceData {
+  date: string
+  price: number
 }
 
-export function StockChart() {
-  const [data, setData] = useState<any[]>([])
+interface StockChartProps {
+  symbol: string
+  priceHistory: PriceData[]
+}
+
+export default function StockChart({ symbol, priceHistory }: StockChartProps) {
+  const [chartData, setChartData] = useState<PriceData[]>([])
+  const [range, setRange] = useState<"1W" | "1M">("1W")
 
   useEffect(() => {
-    setData(generateChartData())
-  }, [])
+    const now = new Date()
+    const startDate = new Date()
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-md">
-          <p className="font-bold">{label}</p>
-          <p className="text-green-500">${payload[0].value.toFixed(2)}</p>
-        </div>
-      )
+    if (range === "1W") {
+      startDate.setDate(now.getDate() - 7)
+    } else {
+      startDate.setMonth(now.getMonth() - 1)
     }
-    return null
-  }
+
+    const filtered = priceHistory.filter(
+      (item) => new Date(item.date) >= startDate
+    )
+
+    setChartData(filtered)
+  }, [priceHistory, range])
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(value)
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })
+
+  const stroke = "hsl(var(--primary))"
+  const fill = "hsla(var(--primary), 0.2)"
 
   return (
-    <div className="h-[300px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={data}
-          margin={{
-            top: 10,
-            right: 10,
-            left: 0,
-            bottom: 0,
-          }}
+    <Card className="w-full overflow-hidden my-3">
+      <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <CardTitle>{symbol} - Price Chart</CardTitle>
+        <ToggleGroup
+          type="single"
+          value={range}
+          onValueChange={(val) => val && setRange(val as "1W" | "1M")}
         >
-          <defs>
-            <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#4ade80" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-          <YAxis
-            domain={["dataMin - 20", "dataMax + 20"]}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 12 }}
-            width={40}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Area
-            type="monotone"
-            dataKey="price"
-            stroke="#4ade80"
-            strokeWidth={2}
-            fillOpacity={1}
-            fill="url(#colorPrice)"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+          <ToggleGroupItem value="1W">1W</ToggleGroupItem>
+          <ToggleGroupItem value="1M">1M</ToggleGroupItem>
+        </ToggleGroup>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[300px]">
+          <ChartContainer config={{}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={stroke} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={stroke} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={12}
+                />
+                <YAxis
+                  tickFormatter={formatCurrency}
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={12}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent formatter={(v) => formatCurrency(Number(v))} />
+                  }
+                />
+                <Area
+                  type="monotone"
+                  dataKey="price"
+                  stroke={stroke}
+                  fill="url(#colorPrice)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
+import { TradeType } from "@prisma/client"
 
 export const POST = async (req: Request) => {
   try {

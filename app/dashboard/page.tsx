@@ -77,9 +77,9 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">₹{user?.portfolio?.value}</div>
+                <div className="text-3xl font-bold">₹{user?.portfolio?.value.toFixed(2)}</div>
                 <div className="text-sm text-green-500 font-medium">
-                  ₹{user?.portfolio?.change} ({((user?.portfolio?.change ?? 1) / (user?.portfolio?.value ?? 1)) * 100}%) today
+                  ₹{user?.portfolio?.change} ({(((user?.portfolio?.change ?? 1) / (user?.portfolio?.value ?? 1)) * 100).toFixed(2)}%) today
                 </div>
               </div>
             </CardContent>

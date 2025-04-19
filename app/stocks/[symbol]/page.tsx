@@ -4,7 +4,6 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StockChart, {  } from "@/components/stock-chart";
-import { PrismaClient} from "@prisma/client"; // Import News type if needed
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import Link from 'next/link'; // Import Link for news items
@@ -14,7 +13,7 @@ import NewsSection from "@/components/NewsSection";
 import { FetchFinance, FetchNews } from "./actions/fetchdata";
 
 
-const prisma = new PrismaClient(); // Keeping it simple here for the example
+import { prisma } from '@/lib/prisma'
 
 
 interface FinancialData {

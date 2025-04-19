@@ -1,9 +1,8 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
   const payload = await req.json();

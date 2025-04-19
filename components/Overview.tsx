@@ -1,12 +1,6 @@
 
-import { DashboardNav } from "@/components/dashboard-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StockChart } from "@/components/stock-chart";
-import { PrismaClient, Price, News } from "@prisma/client"; // Import News type if needed
-import { notFound, redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
-import Link from 'next/link'; // Import Link for news items
 
 interface StockType{
     symbol: string;

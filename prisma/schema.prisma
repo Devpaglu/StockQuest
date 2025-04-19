@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -11,7 +12,7 @@ model User {
   id          String     @id @default(cuid())
   email       String     @unique
   name        String?
-  clerkId     String     @unique   
+  clerkId     String     @unique
   trades      Trade[]
   portfolio   Portfolio?
   portfolioId String?    @unique
@@ -21,63 +22,62 @@ model User {
 }
 
 model Stock {
-  symbol            String             @id
-  name              String
-  sector            String?
-  currentPrice      Float?
-  news              News[]
-  createdAt         DateTime           @default(now())
-  trades            Trade[]
-  stockInPortfolio  StockInPortfolio[]
-  change            Float?
-  changePercent     Float?
-  marketCap         Float?
-  volume            Float?
-  peRatio           Float?
-  dividendYield     Float?
-  description       String?
+  symbol           String             @id
+  name             String
+  sector           String?
+  currentPrice     Float?
+  news             News[]
+  createdAt        DateTime           @default(now())
+  trades           Trade[]
+  stockInPortfolio StockInPortfolio[]
+  change           Float?
+  changePercent    Float?
+  marketCap        Float?
+  volume           Float?
+  peRatio          Float?
+  dividendYield    Float?
+  description      String?
 }
 
-
 model Trade {
-  id           String   @id @default(cuid())
-  user         User     @relation(fields: [userId], references: [id])
+  id           String    @id @default(cuid())
+  user         User      @relation(fields: [userId], references: [id])
   userId       String
-  stock        Stock    @relation(fields: [stockSymbol], references: [symbol])
+  stock        Stock     @relation(fields: [stockSymbol], references: [symbol])
   stockSymbol  String
   type         TradeType
   quantity     Int
   priceAtTrade Float
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
 }
 
 model Portfolio {
-  id               String             @id @default(cuid())
-  user             User               @relation(fields: [userId], references: [id])
-  userId           String             @unique
-  stockPortfolio   StockInPortfolio[]
-  updatedAt        DateTime           @updatedAt
-  value            Float              @default(0)
-  change           Float              @default(0)
+  id             String             @id @default(cuid())
+  user           User               @relation(fields: [userId], references: [id])
+  userId         String             @unique
+  stockPortfolio StockInPortfolio[]
+  updatedAt      DateTime           @updatedAt
+  value          Float              @default(0)
+  change         Float              @default(0)
 }
 
 model StockInPortfolio {
-  id           String     @id @default(cuid())
-  portfolio    Portfolio  @relation(fields: [portfolioId], references: [id])
+  id           String    @id @default(cuid())
+  portfolio    Portfolio @relation(fields: [portfolioId], references: [id])
   portfolioId  String
-  stock        Stock      @relation(fields: [stockSymbol], references: [symbol])
+  stock        Stock     @relation(fields: [stockSymbol], references: [symbol])
   stockSymbol  String
   quantity     Int
   averagePrice Float
 }
 
 model News {
-  id           String   @id @default(cuid())
-  stock        Stock    @relation(fields: [stockSymbol], references: [symbol])
-  stockSymbol  String
-  title        String
-  url          String
-  publishedAt  DateTime
+  id          String   @id @default(cuid())
+  stock       Stock    @relation(fields: [stockSymbol], references: [symbol])
+  stockSymbol String
+  title       String
+  url         String
+  publishedAt DateTime
 }
 
 enum TradeType {

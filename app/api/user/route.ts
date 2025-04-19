@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server'; // if using Clerk
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 export const GET = async (req: Request) => {
   const { userId } = await auth()
 

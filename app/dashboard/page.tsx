@@ -4,11 +4,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { StockCard } from "@/components/stock-card"
 import { ArrowUpRight } from "lucide-react"
-import { PrismaClient } from '@prisma/client'
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+
 
 export default async function DashboardPage() {
   const { userId } = await auth()

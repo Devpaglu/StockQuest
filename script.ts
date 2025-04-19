@@ -1,7 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+
 import { randomUUID } from 'crypto'
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+
 
 async function main() {
     const portfolio = await prisma.portfolio.create({

@@ -3,9 +3,8 @@ import { DashboardNav } from "@/components/dashboard-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowUp } from "lucide-react"
 import { auth } from '@clerk/nextjs/server'
-import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export default async function PortfolioPage() {
   const { userId, redirectToSignIn } = await auth()
@@ -16,7 +15,11 @@ export default async function PortfolioPage() {
       clerkId: userId
     },
     include: {
-      portfolio: true,
+      portfolio:{
+        include:{
+          stockPortfolio:true
+        }
+      },
       trades: {
         include: {
           stock: true

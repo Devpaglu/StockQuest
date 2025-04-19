@@ -8,6 +8,7 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
 import { prisma } from '@/lib/prisma'
+import DailyChallenge from "@/components/DailyChallenge"
 
 
 export default async function DashboardPage() {
@@ -112,7 +113,7 @@ export default async function DashboardPage() {
           </Card>
 
           {/* Daily Challenge */}
-          <Card>
+          {/* <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium">Daily Challenge</h2>
@@ -128,7 +129,11 @@ export default async function DashboardPage() {
                 <Button className="w-full bg-blue-500 hover:bg-blue-600">Complete for +50 XP</Button>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
+
+          <DailyChallenge/>
+
+          
         </div>
 
         {/* Trending Stocks */}

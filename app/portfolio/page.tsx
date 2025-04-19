@@ -25,6 +25,7 @@ export default async function PortfolioPage() {
 
   if (!user) return <div>User not found.</div>
 
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />
@@ -53,10 +54,7 @@ export default async function PortfolioPage() {
                 <div className="text-gray-500 text-sm">Assets</div>
                 <div className="text-2xl font-bold mt-1">{user.portfolio?.stockPortfolio.length}</div>
               </div>
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <div className="text-gray-500 text-sm">Trading Level</div>
-                <div className="text-2xl font-bold mt-1">Intermediate</div>
-              </div>
+
             </div>
           </CardContent>
         </Card>

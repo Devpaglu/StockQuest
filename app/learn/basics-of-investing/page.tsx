@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { SiteLayout } from "@/components/site-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ExternalLink, PlayCircle, ArrowLeft, CheckCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { SiteLayout } from "@/components/site-layout";
 
 const lessons = [
     { id: 1, title: "Introduction to Investing", description: "Learn the fundamentals of investing and why it's important for your financial future.", duration: "18 min", topics: [{ title: "What is Investing?", link: "https://youtu.be/Epzr8azlxp8?si=xOozBpq3qTxaagsl" }, { title: "Types of Investment Vehicles", link: "https://youtu.be/WOCGvtP2I8M?si=c1Diaa2zbiJc99O4" }, { title: "Setting Investment Goals", link: "https://youtu.be/9xUBeTcDV-I?si=4j0t7YfauPHxyI1w" }] },

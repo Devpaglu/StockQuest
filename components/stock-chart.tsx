@@ -4,13 +4,22 @@ import { useEffect, useState } from "react"
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts"
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 
 interface PriceData {
   date: string
   price: number
 }
+
+type RangeOption = "1W" | "1M" | "6M" | "1Y"
 
 interface StockChartProps {
   symbol: string
@@ -19,16 +28,25 @@ interface StockChartProps {
 
 export default function StockChart({ symbol, priceHistory }: StockChartProps) {
   const [chartData, setChartData] = useState<PriceData[]>([])
-  const [range, setRange] = useState<"1W" | "1M">("1W")
+  const [range, setRange] = useState<RangeOption>("1W")
 
   useEffect(() => {
     const now = new Date()
     const startDate = new Date()
 
-    if (range === "1W") {
-      startDate.setDate(now.getDate() - 7)
-    } else {
-      startDate.setMonth(now.getMonth() - 1)
+    switch (range) {
+      case "1W":
+        startDate.setDate(now.getDate() - 7)
+        break
+      case "1M":
+        startDate.setMonth(now.getMonth() - 1)
+        break
+      case "6M":
+        startDate.setMonth(now.getMonth() - 6)
+        break
+      case "1Y":
+        startDate.setFullYear(now.getFullYear() - 1)
+        break
     }
 
     const filtered = priceHistory.filter(
@@ -60,10 +78,12 @@ export default function StockChart({ symbol, priceHistory }: StockChartProps) {
         <ToggleGroup
           type="single"
           value={range}
-          onValueChange={(val) => val && setRange(val as "1W" | "1M")}
+          onValueChange={(val) => val && setRange(val as RangeOption)}
         >
           <ToggleGroupItem value="1W">1W</ToggleGroupItem>
           <ToggleGroupItem value="1M">1M</ToggleGroupItem>
+          <ToggleGroupItem value="6M">6M</ToggleGroupItem>
+          <ToggleGroupItem value="1Y">1Y</ToggleGroupItem>
         </ToggleGroup>
       </CardHeader>
       <CardContent>
@@ -92,7 +112,9 @@ export default function StockChart({ symbol, priceHistory }: StockChartProps) {
                 />
                 <ChartTooltip
                   content={
-                    <ChartTooltipContent formatter={(v) => formatCurrency(Number(v))} />
+                    <ChartTooltipContent
+                      formatter={(v) => formatCurrency(Number(v))}
+                    />
                   }
                 />
                 <Area

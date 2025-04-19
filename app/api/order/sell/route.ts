@@ -33,6 +33,8 @@ export const POST = async (req: Request) => {
       return NextResponse.json({ success: false, message: "Portfolio not found" }, { status: 404 })
     }
 
+
+
     // 2. Get stock entry from portfolio
     const stockEntry = await prisma.stockInPortfolio.findFirst({
       where: {
@@ -40,6 +42,13 @@ export const POST = async (req: Request) => {
         stockSymbol: stock.symbol,
       },
     })
+
+    if (!stockEntry || stockEntry.quantity < quantity) {
+      return NextResponse.json(
+        { success: false, message: "Not enough shares to sell" },
+        { status: 400 }
+      )
+    }
 
     const updatePortfolio = await prisma.portfolio.update({
         where:{
@@ -51,12 +60,7 @@ export const POST = async (req: Request) => {
         }
     })
 
-    if (!stockEntry || stockEntry.quantity < quantity) {
-      return NextResponse.json(
-        { success: false, message: "Not enough shares to sell" },
-        { status: 400 }
-      )
-    }
+  
 
     // 3. Create SELL trade
     const trade = await prisma.trade.create({

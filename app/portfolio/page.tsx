@@ -41,10 +41,10 @@ export default async function PortfolioPage() {
 
             <div className="mt-6">
               <div className="text-gray-500 text-sm">Total Value</div>
-              <div className="text-4xl font-bold mt-1">₹{user.portfolio?.value ?? 0}</div>
+              <div className="text-4xl font-bold mt-1">${user.portfolio?.value.toFixed(2) ?? 0}</div>
               <div className="flex items-center text-green-500 text-sm font-medium mt-1">
                 <ArrowUp className="h-4 w-4 mr-1" />
-                ${user.portfolio?.change} today
+                ${user.portfolio?.change.toFixed(2)} today
               </div>
             </div>
 
@@ -76,8 +76,13 @@ export default async function PortfolioPage() {
                     </div>
                     <div className="flex-1">
                       <div className="font-bold">{stock.stockSymbol}</div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        {stock.quantity} shares
+                      <div className="flex justify-between">
+                        <div className="flex items-center text-sm text-gray-500">
+                          {stock.quantity} shares
+                        </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          ${stock.quantity*stock.averagePrice}
+                        </div>
                       </div>
                     </div>
                   </div>

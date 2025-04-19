@@ -27,6 +27,10 @@ export default async function DashboardPage() {
     }
   })
 
+  if(!user){
+    redirect('/login')
+  }
+
   const stocks = await prisma.stock?.findMany()
 
   // ✅ Fetch prices for all stocks before rendering
@@ -41,6 +45,10 @@ export default async function DashboardPage() {
     })
   )
 
+  const overall = - (user?.portfolio?.value ?? 0) - (100000 - (user?.balance ?? 0)) ;
+  const overallbalance = user?.balance ? user?.balance - 10000 : 0;
+
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardNav />
@@ -48,7 +56,7 @@ export default async function DashboardPage() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="flex flex-col gap-2 mb-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Welcome back,!</h1>
+            <h1 className="text-3xl font-bold">Welcome  { user?.name}!</h1>
             <div className="flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-1 rounded-full">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
@@ -77,28 +85,27 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">₹{user?.portfolio?.value.toFixed(2)}</div>
-                <div className="text-sm text-green-500 font-medium">
-                  ₹{user?.portfolio?.change} ({(((user?.portfolio?.change ?? 1) / (user?.portfolio?.value ?? 1)) * 100).toFixed(2)}%) today
+                <div className="text-3xl font-bold">${user?.portfolio?.value.toFixed(2)}</div>
+                <div className={`text-sm ${overall>0?'text-green-500':'text-red-500'} font-medium`}>
+                  ${overall.toFixed(2)} overall
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Learning Progress */}
+          {/* Wallet balance*/}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium">Learning Progress</h2>
-                <svg className="h-5 w-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                <h2 className="text-lg font-medium">Wallet Balance</h2>
+                <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
-              <div className="space-y-3">
-                <div className="text-xl font-bold">2 of 8 modules</div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: "25%" }}></div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold">${user?.balance?.toFixed(2)}</div>
+                <div className={`text-sm ${overallbalance > 0 ? 'text-green-500' : 'text-red-500'} font-medium`}>
+                  ${overallbalance.toFixed(2)} overall
                 </div>
               </div>
             </CardContent>

@@ -240,13 +240,10 @@ export default async function StockPage({
 
   const {symbol} =  await params;
   const data = await FetchNews(symbol)
-  console.log("neww s   s s ")
-  //console.log(data)
   const news: NewsItem[] = data.articles;
 
 
    const fd  = await FetchFinance(symbol);
-  // console.log(financialData)
 
   const financialData = mapApiResponse(fd);
 
@@ -265,7 +262,6 @@ export default async function StockPage({
 
         <StockChart symbol={stock.symbol} priceHistory={priceHistory}/>
 
-    
 
         {/* --- Tabs --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -278,7 +274,6 @@ export default async function StockPage({
                 <TabsTrigger value="financials">Financials</TabsTrigger>
                 <TabsTrigger value="news">News</TabsTrigger>
               </TabsList>
-
            
               <Overview stock={stock}/>
 

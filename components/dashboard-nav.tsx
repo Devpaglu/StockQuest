@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Home, Clock, BookOpen, Search, Sun, Moon } from "lucide-react"
+import { Home, Clock, BookOpen, Search, Sun, Moon, SearchCheck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 
@@ -60,6 +60,16 @@ export function DashboardNav() {
             >
               <BookOpen className="h-5 w-5" />
               <span>Learn</span>
+            </Link>
+
+            <Link
+              href="/analyse"
+              className={`flex flex-col items-center gap-1 text-sm ${
+                pathname === "/analyse" ? "text-green-500" : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <SearchCheck className="h-5 w-5" />
+              <span>Analyse</span>
             </Link>
 
             <SignedIn >

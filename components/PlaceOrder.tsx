@@ -19,6 +19,7 @@ const PlaceOrder = ({
     const router = useRouter();
   const [quantity, setQuantity] = useState(1)
   const [cost, setCost] = useState(currentPrice)
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 1
@@ -27,6 +28,7 @@ const PlaceOrder = ({
   }
 
   const buyOrder = async () => {
+    setLoading(true)
     await fetch("/api/order/buy", {
       method: "POST",
       headers: {
@@ -39,13 +41,14 @@ const PlaceOrder = ({
         balance: balance,
       }),
     })
-  
+    setLoading(false)
     router.refresh()
   }
   
 
   const sellOrder = async () => {
-    await fetch("/api/order/sell", {
+    setLoading(true)
+    const res = await fetch("/api/order/sell", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -57,7 +60,7 @@ const PlaceOrder = ({
         balance: balance,
       }),
     })
-  
+    setLoading(false)
     router.refresh()
   }
   
@@ -97,45 +100,51 @@ const PlaceOrder = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button className="bg-green-500 hover:bg-green-600"
-              onClick={buyOrder}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4 mr-2"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-                Buy
-              </Button>
-
-              <Button
-                className="bg-red-500 hover:bg-red-600"
-                onClick={sellOrder}
+            <Button
+              className={`bg-green-500 hover:bg-green-600 ${loading ? 'bg-green-100 cursor-not-allowed' : ''}`}
+              disabled={loading}
+              onClick={buyOrder}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 mr-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4 mr-2"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-                Sell
-              </Button>
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+              Buy
+            </Button>
+
+            <Button
+              className={`bg-red-500 hover:bg-red-600 ${loading ? 'bg-red-100 cursor-not-allowed' : ''}`}
+              disabled={loading}
+              onClick={sellOrder}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 mr-2"
+              >
+                <path d="M12 22V2M7 19h7.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H18" />
+              </svg>
+              Sell
+            </Button>
+
+
             </div>
           </div>
 

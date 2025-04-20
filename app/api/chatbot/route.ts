@@ -94,12 +94,11 @@ Keep your answers concise and directly related to the user's query and the provi
     const rawReply = openRouterData.choices?.[0]?.message?.content?.trim() || "Sorry, I couldn't generate a response.";
 
     // --- MODIFICATION START ---
-    // Wrap the raw reply in Markdown code block syntax
-    const markdownReply = "```markdown\n" + rawReply + "\n```";
+
     // --- MODIFICATION END ---
 
     console.log(`[API Chatbot] Sending reply for ${ticker}`);
-    return NextResponse.json({ reply: markdownReply }); // Send the wrapped reply
+    return NextResponse.json({ reply: rawReply }); // Send the wrapped reply
 
   } catch (error) {
     console.error("[API Chatbot] Internal Server Error:", error);

@@ -17,6 +17,7 @@ interface StockType{
 
 
 const Overview = ({stock}:{stock:any}) => {
+
   return (
        <TabsContent value="overview">
        <Card className="shadow-sm dark:bg-gray-900">

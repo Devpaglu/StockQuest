@@ -24,9 +24,9 @@ export async function FetchFinance(symbol: string) {
     if (!res.ok) {
         throw new Error('Failed to fetch stock data');
     }
-    console.log("2")
-    const data = await res.json();
 
+    const data = await res.json();
+    console.log(data)
     // Check if the response actually contains data
     if (!data["Global Quote"]) {
         throw new Error('No stock data found for the provided symbol.');
@@ -61,7 +61,7 @@ export async function fetchHistoricalBars(symbol: string, {
 } = {}) {
   // Default: last 100 days
   const now = new Date();
-  const defaultEnd = formatDate(new Date(now.getTime() - 24 * 60 * 60 * 1000))
+  const defaultEnd = formatDate(new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000))
   const defaultStart = formatDate(new Date(now.getTime() - 800 * 24 * 60 * 60 * 1000));
 
   const params = new URLSearchParams({

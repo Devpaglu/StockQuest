@@ -12,7 +12,7 @@ This project is an AI-powered stock market simulation platform designed to provi
   <a href="https://youtu.be/RT33AWxbtDg">https://youtu.be/RT33AWxbtDg</a>
   
 ## Presentation Link:
-  <a href="https://drive.google.com/file/d/1rIXhKjmSG9pBTwJsl1aoRiHrXyum2X7m/view?usp=share_link"> PPT link here </a>
+  <a href="https://drive.google.com/file/d/1THYEUJD4Leyrd_uR7MNINic4HNUKW1ay/view?usp=share_link"> PPT link here </a>
   
 
 ## Technology Stack:
